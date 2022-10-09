@@ -1,12 +1,14 @@
 package com.gbtouch.pdfdemo;
 
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.widget.ImageView;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.shockwave.pdfium.PdfDocument;
 import com.shockwave.pdfium.PdfiumCore;
@@ -25,8 +27,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.initialize();
+    }
+
+    private void initialize(){
+        getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                myHandleOnBackPressed();
+            }
+        });
         pdfiumCore = new PdfiumCore(this);
-        //FileUtils.fileFromAsset(this, assetName);
         pdfFiles = this.loadPdfList();
         List<Integer> imageViewIds = Arrays.asList( R.id.image_pdf, R.id.image_pdf_sec , R.id.image_pdf_third );
         for( int i = 0;i < imageViewIds.size() ; i++ ){
@@ -35,12 +46,31 @@ public class MainActivity extends AppCompatActivity {
                 ImageView imageView = this.findViewById(imageViewIds.get(i));
                 imageView.setScaleType( ImageView.ScaleType.CENTER_CROP );
                 imageView.setImageBitmap(bitmap);
+                int finalI = i;
+                imageView.setOnClickListener(v -> this.gotoPdfView(pdfFiles[finalI]));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
+    }
 
+    private void myHandleOnBackPressed(){
+        new AlertDialog.Builder(this)
+                .setMessage("确定要退出APP?")
+                .setPositiveButton("确定", (dialog, which) -> {
+                    finish();
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
 
+    private void gotoPdfView( String file ){
+        PdfFragment pdfFragment = PdfFragment.newInstance(file);
+        this.getSupportFragmentManager().beginTransaction()
+                .setReorderingAllowed(true)
+                .replace(R.id.fragment_container, pdfFragment,null)
+                .addToBackStack("pdf_detail")
+                .commit();
     }
 
     private String[] loadPdfList() {
