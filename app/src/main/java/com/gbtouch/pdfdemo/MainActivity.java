@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     String[] pdfFiles;
     PdfiumCore pdfiumCore;
+    private static final float size = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         List<Integer> imageViewIds = Arrays.asList( R.id.image_pdf, R.id.image_pdf_sec , R.id.image_pdf_third );
         for( int i = 0;i < imageViewIds.size() ; i++ ){
             try {
-                Bitmap bitmap = this.loadImage(pdfFiles[i],200);
+                Bitmap bitmap = this.loadImage(pdfFiles[i]);
                 ImageView imageView = this.findViewById(imageViewIds.get(i));
                 imageView.setScaleType( ImageView.ScaleType.CENTER_CROP );
                 imageView.setImageBitmap(bitmap);
@@ -57,9 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private void myHandleOnBackPressed(){
         new AlertDialog.Builder(this)
                 .setMessage("确定要退出APP?")
-                .setPositiveButton("确定", (dialog, which) -> {
-                    finish();
-                })
+                .setPositiveButton("确定", (dialog, which) -> finish())
                 .setNegativeButton("取消", null)
                 .show();
     }
@@ -84,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private Bitmap loadImage(String fileName,float size) throws IOException {
+    private Bitmap loadImage(String fileName) throws IOException {
         File f = Utils.fileFromAsset(this,fileName);
         ParcelFileDescriptor pfd = ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
         PdfDocument pdfDocument = pdfiumCore.newDocument(pfd);
@@ -107,23 +106,4 @@ public class MainActivity extends AppCompatActivity {
         pdfiumCore.closeDocument(pdfDocument);
         return bitmap;
     }
-
-
-
-    /*
-    private void displayFromAsset(String assetFileName) {
-        //pdfFileName = assetFileName;
-
-        pdfView.fromAsset(SAMPLE_FILE)
-                .defaultPage(0)
-                //.onPageChange(this)
-                .enableAnnotationRendering(true)
-                //.onLoad(this)
-                .scrollHandle(new DefaultScrollHandle(this))
-                .spacing(10) // in dp
-                //.onPageError(this)
-                .pageFitPolicy(FitPolicy.BOTH)
-                .load();
-    }
-    */
 }

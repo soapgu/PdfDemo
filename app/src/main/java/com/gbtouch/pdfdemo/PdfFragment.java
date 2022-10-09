@@ -1,15 +1,20 @@
 package com.gbtouch.pdfdemo;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import com.github.barteksc.pdfviewer.PDFView;
+import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
+import com.github.barteksc.pdfviewer.util.FitPolicy;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,7 +25,7 @@ public class PdfFragment extends Fragment {
 
 
     private static final String ARG_URL = "URL";
-
+    private PDFView pdfView;
     private String url;
 
     public PdfFragment() {
@@ -61,7 +66,25 @@ public class PdfFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        TextView tvPdf = view.findViewById(R.id.tv_pdf_url);
-        tvPdf.setText( this.url );
+        this.pdfView = view.findViewById(R.id.pdfView);
+        this.displayFromFile(this.url);
+    }
+
+    private void displayFromFile(String assetFileName) {
+        try {
+            File pdfFile = Utils.fileFromAsset(requireContext(),assetFileName);
+            pdfView.fromFile(pdfFile)
+                    .defaultPage(0)
+                    //.onPageChange(this)
+                    .enableAnnotationRendering(true)
+                    //.onLoad(this)
+                    .scrollHandle(new DefaultScrollHandle(requireContext()))
+                    .spacing(10) // in dp
+                    //.onPageError(this)
+                    .pageFitPolicy(FitPolicy.BOTH)
+                    .load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
