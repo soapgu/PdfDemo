@@ -1,2 +1,2 @@
 # PdfDemo
-windows读取pdf组件
+安卓读取pdf组件
